@@ -1,5 +1,6 @@
 import express, { json } from "express";
 import userRoutes from "./routes/userRoutes.js";
+import customerRoutes from "./routes/customerRoutes.js";
 import connectDB from "./config/db.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 
@@ -14,6 +15,7 @@ app.use(json());
 
 // Routes
 app.use("/api/users", userRoutes);
+app.use("/api/customers", customerRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
