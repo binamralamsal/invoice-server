@@ -1,5 +1,4 @@
 import express, { json } from "express";
-import cors from "cors";
 import userRoutes from "./routes/userRoutes.js";
 import connectDB from "./config/db.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
@@ -12,7 +11,6 @@ connectDB();
 const app = express();
 
 app.use(json());
-app.use(cors());
 
 // Routes
 app.use("/api/users", userRoutes);
