@@ -2,18 +2,18 @@ import asyncHandler from "express-async-handler";
 import Customer from "../models/Customer.js";
 import User from "../models/User.js";
 
-// @desc    Get Customer
-// @route   GET /api/customers/
-// @access  Public
+// @desc     Get Customers
+// @route    GET /api/customers/
+// @access   Private/Admin
 const getCustomers = asyncHandler(async (req, res) => {
   const customers = await Customer.find({}).populate("user", "name");
 
   res.json(customers);
 });
 
-// @desc    Get Customer
-// @route   GET /api/customers/
-// @access  Public
+// @desc     Get Customer
+// @route    GET /api/customers/:id/
+// @access   Private/Admin
 const getCustomer = asyncHandler(async (req, res) => {
   const customers = await Customer.findById(req.params.id).populate(
     "user",
@@ -23,9 +23,9 @@ const getCustomer = asyncHandler(async (req, res) => {
   res.json(customers);
 });
 
-// @desc    Create Customer
-// @route   POST /api/customers/
-// @access  Public
+// @desc     Create Customer
+// @route    POST /api/customers/
+// @access   Private/Admin
 const createCustomer = asyncHandler(async (req, res) => {
   const {
     name,
@@ -52,9 +52,9 @@ const createCustomer = asyncHandler(async (req, res) => {
   res.json(customer);
 });
 
-// @desc    Create Customer
-// @route   POST /api/customers/
-// @access  Public
+// @desc     Edit Customer
+// @route    PUT /api/customers/:id
+// @access   Private/Admin
 const editCustomer = asyncHandler(async (req, res) => {
   const { name, password, phoneNumber, address, gstNumber, city, state } =
     req.body;
@@ -90,4 +90,27 @@ const editCustomer = asyncHandler(async (req, res) => {
   res.json(customer);
 });
 
-export { getCustomers, getCustomer, createCustomer, editCustomer };
+// @desc    Delete Customer
+// @route   DELETE /api/customers/
+// @access  Private/Admin
+const deleteUser = asyncHandler(async (req, res) => {
+  const customerIds = req.body;
+
+  for (const customerId of customerIds) {
+    const customer = await Customer.findById(customerId);
+
+    if (!customer) {
+      res.status(404);
+      throw new Error("Customer not found");
+    }
+
+    const user = await User.findById(customer.user);
+
+    await customer.remove();
+    await user.remove();
+  }
+
+  res.json({ message: "User Deleted Successfully" });
+});
+
+export { getCustomers, getCustomer, createCustomer, editCustomer, deleteUser };
