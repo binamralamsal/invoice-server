@@ -40,7 +40,12 @@ customerSchema.statics.createCustomer = async function (data) {
     city,
     state,
   } = data;
-  const user = await User.create({ name, username, password });
+  let user;
+  try {
+    user = await User.create({ name, username, password });
+  } catch (error) {
+    throw new Error("User with same username already exists");
+  }
 
   const customer = await this.create({
     user: user._id,
