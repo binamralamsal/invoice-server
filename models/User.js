@@ -26,6 +26,13 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
+userSchema.methods.changePassword = async function (newPassword) {
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(newPassword, salt);
+
+  await this.save();
+};
+
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
     next();
