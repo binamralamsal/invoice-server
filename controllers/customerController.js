@@ -6,9 +6,19 @@ import User from "../models/User.js";
 // @route    GET /api/customers/
 // @access   Private/Admin
 const getCustomers = asyncHandler(async (req, res) => {
-  const customers = await Customer.find({}).populate("user", "name");
+  const PAGE_SIZE = 15;
+  let page = parseInt(req.query.page || "1") - 1;
+  if (page < 0) page = 0;
 
-  res.json(customers);
+  const customers = await Customer.find({})
+    // .collation({ locale: "en" })
+    // .sort({ name: "asc" })
+    .limit(PAGE_SIZE)
+    .skip(PAGE_SIZE * page)
+    .populate("user", "name");
+  const total = await Customer.countDocuments({});
+
+  res.json({ total: Math.ceil(total / PAGE_SIZE), customers });
 });
 
 // @desc     Get Customer
@@ -93,7 +103,7 @@ const editCustomer = asyncHandler(async (req, res) => {
 // @desc    Delete Customer
 // @route   DELETE /api/customers/
 // @access  Private/Admin
-const deleteUser = asyncHandler(async (req, res) => {
+const deleteCustoemr = asyncHandler(async (req, res) => {
   const customerIds = req.body;
 
   for (const customerId of customerIds) {
@@ -113,4 +123,10 @@ const deleteUser = asyncHandler(async (req, res) => {
   res.json({ message: "User Deleted Successfully" });
 });
 
-export { getCustomers, getCustomer, createCustomer, editCustomer, deleteUser };
+export {
+  getCustomers,
+  getCustomer,
+  createCustomer,
+  editCustomer,
+  deleteCustoemr,
+};

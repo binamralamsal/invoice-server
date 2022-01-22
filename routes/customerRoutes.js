@@ -4,7 +4,7 @@ import {
   getCustomer,
   createCustomer,
   editCustomer,
-  deleteUser,
+  deleteCustoemr,
 } from "../controllers/customerController.js";
 
 import { protect, admin } from "../middleware/authMiddleware.js";
@@ -15,7 +15,7 @@ router
   .route("/")
   .get(protect, admin, getCustomers)
   .post(protect, admin, createCustomer)
-  .delete(protect, admin, deleteUser);
+  .delete(protect, admin, deleteCustoemr);
 router
   .route("/:id")
   .get(protect, admin, getCustomer)
