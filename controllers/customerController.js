@@ -11,11 +11,11 @@ const getCustomers = asyncHandler(async (req, res) => {
   if (page < 0) page = 0;
 
   const customers = await Customer.find({})
-    // .collation({ locale: "en" })
-    // .sort({ name: "asc" })
+    .populate("user", "name")
+    // .collation({ locale: "en", strength: 2 })
+    .sort({ date: -1 })
     .limit(PAGE_SIZE)
-    .skip(PAGE_SIZE * page)
-    .populate("user", "name");
+    .skip(PAGE_SIZE * page);
   const total = await Customer.countDocuments({});
 
   res.json({ total: Math.ceil(total / PAGE_SIZE), customers });

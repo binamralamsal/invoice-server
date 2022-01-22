@@ -16,7 +16,7 @@ const customerSchema = mongoose.Schema({
     required: true,
   },
   gstNumber: {
-    type: Number,
+    type: String,
     required: true,
   },
   city: {
@@ -26,6 +26,10 @@ const customerSchema = mongoose.Schema({
   state: {
     type: String,
     required: true,
+  },
+  date: {
+    type: Date,
+    default: Date.now,
   },
 });
 
