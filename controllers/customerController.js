@@ -1,6 +1,7 @@
 import asyncHandler from "express-async-handler";
 import Customer from "../models/Customer.js";
 import User from "../models/User.js";
+import Fuse from "fuse.js";
 
 // @desc     Get Customers
 // @route    GET /api/customers/
@@ -8,14 +9,25 @@ import User from "../models/User.js";
 const getCustomers = asyncHandler(async (req, res) => {
   const PAGE_SIZE = 15;
   let page = parseInt(req.query.page || "1") - 1;
+  let searchQuery = req.query.search || null;
   if (page < 0) page = 0;
 
-  const customers = await Customer.find({})
+  let customers = await Customer.find({})
     .populate("user", "name")
-    // .collation({ locale: "en", strength: 2 })
     .sort({ date: -1 })
     .limit(PAGE_SIZE)
     .skip(PAGE_SIZE * page);
+
+  if (searchQuery) {
+    const options = {
+      keys: ["user.name", "phoneNumber", "city"],
+      threshold: 0.3,
+    };
+
+    const fuse = new Fuse(customers, options);
+    const result = fuse.search(searchQuery);
+    customers = result.map((customer) => customer.item);
+  }
   const total = await Customer.countDocuments({});
 
   res.json({ total: Math.ceil(total / PAGE_SIZE), customers });
