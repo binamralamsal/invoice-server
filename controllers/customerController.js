@@ -12,23 +12,32 @@ const getCustomers = asyncHandler(async (req, res) => {
   let searchQuery = req.query.search || null;
   if (page < 0) page = 0;
 
-  let customers = await Customer.find({})
-    .populate("user", "name")
-    .sort({ date: -1 })
-    .limit(PAGE_SIZE)
-    .skip(PAGE_SIZE * page);
+  let customers = [];
+  let total = 0;
 
   if (searchQuery) {
+    const data = await Customer.find({})
+      .populate("user", "name")
+      .sort({ date: -1 });
     const options = {
       keys: ["user.name", "phoneNumber", "city"],
       threshold: 0.3,
     };
 
-    const fuse = new Fuse(customers, options);
+    const fuse = new Fuse(data, options);
     const result = fuse.search(searchQuery);
-    customers = result.map((customer) => customer.item);
+    total = result.length;
+    customers = result
+      .map((customer) => customer.item)
+      .slice((PAGE_SIZE - 1) * page, PAGE_SIZE * (page + 1));
+  } else {
+    total = await Customer.countDocuments({});
+    customers = await Customer.find({})
+      .populate("user", "name")
+      .sort({ date: -1 })
+      .limit(PAGE_SIZE)
+      .skip(PAGE_SIZE * page);
   }
-  const total = await Customer.countDocuments({});
 
   res.json({ total: Math.ceil(total / PAGE_SIZE), customers });
 });
